@@ -40,3 +40,8 @@ services:
             do certbot renew;
             sleep 12h & wait $${!};
             done;"
+
+networks:
+    default:
+        external:
+            name: web
