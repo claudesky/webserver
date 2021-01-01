@@ -3,6 +3,7 @@ version: "3"
 services:
     nginx:
         image: nginx
+        restart: always
         env_file: .env
         ports:
             - 80:80
@@ -30,6 +31,7 @@ services:
 
     certbot:
         image: certbot/certbot
+        restart: always
         volumes:
             - ./certbot/conf:/etc/letsencrypt
             - ./certbot/www:/var/www/certbot
