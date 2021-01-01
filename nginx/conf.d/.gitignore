@@ -1,1 +1,5 @@
-default.conf
+*
+!.gitignore
+!default.conf.template
+!ssl-dhparams.pem
+!ssl.conf
