@@ -149,6 +149,7 @@ cat > ./nginx/conf.d/$subdomain.conf << EOF
 upstream $subdomain {
     server $container_name:$portnumber;
 }
+
 server {
     listen 80;
     server_name $subdomain.$HOST_DOMAIN;
