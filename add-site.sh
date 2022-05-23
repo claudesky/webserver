@@ -106,10 +106,6 @@ server {
     listen 80;
     server_name $subdomain.$HOST_DOMAIN;
 
-    location /.well-known/acme-challenge {
-        root /var/www/certbot;
-    }
-
     location / {
         proxy_pass http://$subdomain;
         proxy_set_header X-Forwarded-Proto https;
@@ -127,58 +123,13 @@ echo
 
 while true; do
     echo "Please confirm that we can continue."
-    read -p "Reload nginx server config and request certificate?" yn
+    read -p "Reload nginx server config?" yn
     case $yn in
         [Yy]* ) break;;
         [Nn]* ) exit;;
         * ) echo "Please answer yes or no.";;
     esac
 done
-echo
-
-echo "### Reloading nginx server config"
-docker-compose exec nginx nginx -s reload
-echo
-
-echo "### Requesting ssl certificate"
-docker-compose exec certbot certbot certonly --webroot -w /var/www/certbot -d $subdomain.$HOST_DOMAIN
-echo
-
-echo "### Updating website configuration at ./nginx/conf.d/$subdomain.conf"
-cat > ./nginx/conf.d/$subdomain.conf << EOF
-upstream $subdomain {
-    server $container_name:$portnumber;
-}
-
-server {
-    listen 80;
-    server_name $subdomain.$HOST_DOMAIN;
-
-    location /.well-known/acme-challenge {
-        root /var/www/certbot;
-    }
-
-    location / {
-        return 301 https://\$host\$request_uri;
-    }
-}
-
-server {
-    listen 443 ssl;
-    server_name $subdomain.$HOST_DOMAIN;
-
-    ssl_certificate /etc/letsencrypt/live/$subdomain.$HOST_DOMAIN/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/$subdomain.$HOST_DOMAIN/privkey.pem;
-
-    location / {
-        proxy_pass http://$subdomain;
-        proxy_set_header X-Forwarded-Proto https;
-        proxy_set_header X-Forwarded-For \$remote_addr;
-        proxy_set_header X-Real-IP \$remote_addr;
-        proxy_set_header Host \$host;
-    }
-}
-EOF
 echo
 
 echo "### Reloading nginx server config"
